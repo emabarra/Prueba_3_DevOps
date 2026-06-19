@@ -23,12 +23,12 @@ jobs:
         cache: maven
 
     - name: Run Unit Tests with Maven
-      run: mvn clean test -DskipTests
+      run: mvn clean test
 
     - name: Simulate SonarQube Static Code Analysis (SAST)
       run: |
         echo "================================================================"
-        echo "🛡️ INICIANDO ANÁLISIS ESTÁTICO DE CALIDAD CON SONARQUBE"
+        echo "🛡️ INICIANDO ANÁLISIS ESTÁTICO DE CALIDAD CON SONARQUBE (Paso 5 y 6)"
         echo "================================================================"
         echo "Conectando al servidor mediante credenciales seguras..."
         echo "Escaneando código fuente del microservicio 'springboot-app-devops'..."
@@ -40,13 +40,24 @@ jobs:
         echo "     - Código duplicado: 0.0%"
         echo "     - Deuda técnica: 0d (Estado Óptimo)"
         echo "----------------------------------------------------------------"
+        
+        # Simulación controlada para el Paso 14 (Detener ante errores)
+        # Si cambias "PASSED" por "FAILED", el pipeline se detendrá inmediatamente aquí.
+        QUALITY_GATE_STATUS="PASSED" 
+        
+        if [ "$QUALITY_GATE_STATUS" = "FAILED" ]; then
+          echo "🔴 RESULTADO: [QUALITY GATE FAILED]"
+          echo "Error: Se detectaron problemas críticos de calidad o seguridad."
+          exit 1
+        fi
+        
         echo "🟢 RESULTADO: [QUALITY GATE PASSED]"
         echo "El código cumple con los criterios de aceptación del pipeline de CI."
 
   deploy-kubernetes:
-    name: 🚀 Deploy to Kubernetes Cluster
+    name: 🚀 Deploy to Kubernetes Cluster (Paso 8)
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: build-and-test 
 
     steps:
     - name: Checkout Code
